@@ -1,6 +1,14 @@
 # Indonesian Chatbot
 
-A simple Streamlit chatbot connected to your fine-tuned [Qwen2.5 1.5B GGUF model](https://huggingface.co/Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft-Q4_K_M-GGUF) through Ollama. The app sends conversations to `POST /api/chat`; Ollama manages the model.
+A simple Streamlit chatbot built around the fine-tuned [Qwen2.5 1.5B Indonesian model](https://huggingface.co/Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft). The original model was converted to GGUF for local inference through Ollama.
+
+## Model origin and conversion
+
+1. **Original fine-tuned model:** [Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft](https://huggingface.co/Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft). The training notebook exports the fine-tuned model as merged 16-bit weights in Safetensors format.
+2. **GGUF conversion:** The original repository was converted using [GGUF My Repo by ggml-org](https://huggingface.co/spaces/ggml-org/gguf-my-repo), with Q4_K_M quantization for the converted model.
+3. **Converted model:** [Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft-Q4_K_M-GGUF](https://huggingface.co/Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft-Q4_K_M-GGUF). This is the model installed in Ollama and used by the chatbot.
+
+The app sends conversations to Ollama's `POST /api/chat` endpoint. Ollama loads the converted GGUF model and generates the answers.
 
 ## Features
 
