@@ -69,7 +69,7 @@ Defaults work with the installed model at `http://localhost:11434`. Set environm
 | `OLLAMA_TIMEOUT` | `120` | Chat response timeout in seconds; 1-600. |
 | `CONTEXT_TOKENS` | `8192` | Context size including the answer; 512-32768. |
 | `MAX_NEW_TOKENS` | `2048` | Answer limit; 32-4096, at most half the context. |
-| `MAX_HISTORY_TURNS` | `6` | Maximum previous user/assistant pairs sent; 0-50. |
+| `MAX_HISTORY_TURNS` | `50` | Maximum previous user/assistant pairs sent; 0-50, subject to the context budget. |
 | `TEMPERATURE` | `0.7` | Response variation; 0-2. |
 | `TOP_P` | `0.9` | Sampling probability; greater than 0, at most 1. |
 | `REPETITION_PENALTY` | `1.08` | Repetition penalty; 1-2. |
@@ -88,6 +88,8 @@ python -m streamlit run app.py
 
 Each request includes the system prompt, recent completed turns, and the latest question. Older complete turns are removed when the history or context limit is reached; the full session history stays visible. An oversized question is rejected with a clear message.
 
+The system prompt treats history as essential context. When asked for a full recap, the assistant is instructed to list every earlier user question available in the supplied history in chronological order. Set **Temperature** to **0** for more predictable recaps. Completeness still depends on the model; a recap cannot include messages that have already been removed from the model context.
+
 Context sizing uses a conservative estimate based on UTF-8 byte length plus message overhead, rather than an exact tokenizer count. The footer displays actual prompt and output token counts returned by Ollama. Ollama applies the model's chat template.
 
 Only successful user/assistant pairs enter history. History lives in Streamlit session state and is not stored in a database or on disk; it can be lost when the session ends or the server restarts. Recall depends on the model and the context retained.
@@ -98,6 +100,8 @@ Suggestions use the local CSV's `prompt` column, deduplicated and filtered to 12
 
 ```text
 chatbot-scsg/                                   # Project root
+├── .streamlit/                                 # Streamlit project settings
+│   └── config.toml                             # Polling-based file watcher configuration
 ├── app.py                                      # Streamlit interface and session state
 ├── chatbot/                                    # Chatbot services
 │   ├── config.py                               # Environment settings and system prompt
