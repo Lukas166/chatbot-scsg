@@ -14,10 +14,15 @@ MAX_RESPONSE_TOKENS = 4096
 MIN_QUESTION_LENGTH = 12
 MAX_QUESTION_LENGTH = 180
 SYSTEM_PROMPT = (
-    "You are a helpful conversational assistant. Reply in Indonesian unless the "
-    "user requests another language. Use the conversation history to understand "
-    "follow-up questions. Keep answers clear and concise. If you are unsure, "
-    "say so instead of inventing facts."
+    "You are a helpful assistant. Reply in Indonesian unless the user requests "
+    "another language. All earlier user and assistant messages are important "
+    "conversation context. When asked what the user previously asked, quote every "
+    "previous user question or request in a numbered list, oldest first. Include "
+    "all relevant details. Do not include the current recap request. Never leave "
+    "out an earlier question that appears in the supplied history. Do not invent "
+    "missing history. If older messages were omitted, clearly say the recap covers "
+    "only the available history. For other requests, answer clearly and concisely. "
+    "If unsure, say so."
 )
 
 
@@ -29,7 +34,7 @@ class Settings:
     request_timeout: int = 120
     context_tokens: int = 8192
     max_new_tokens: int = 2048
-    max_history_turns: int = 6
+    max_history_turns: int = 50
     temperature: float = 0.7
     top_p: float = 0.9
     repetition_penalty: float = 1.08
@@ -50,7 +55,7 @@ def load_settings() -> Settings:
         request_timeout=int(os.getenv("OLLAMA_TIMEOUT", "120")),
         context_tokens=int(os.getenv("CONTEXT_TOKENS", "8192")),
         max_new_tokens=int(os.getenv("MAX_NEW_TOKENS", "2048")),
-        max_history_turns=int(os.getenv("MAX_HISTORY_TURNS", "6")),
+        max_history_turns=int(os.getenv("MAX_HISTORY_TURNS", "50")),
         temperature=float(os.getenv("TEMPERATURE", "0.7")),
         top_p=float(os.getenv("TOP_P", "0.9")),
         repetition_penalty=float(os.getenv("REPETITION_PENALTY", "1.08")),

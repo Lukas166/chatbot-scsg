@@ -55,6 +55,13 @@ def prepare_context(
         context = context[2:]
         removed_turns += 1
 
+        # Tell the assistant when a recap cannot cover the complete session history.
+        system["content"] = (
+            f"{settings.system_prompt}\n\nHistory availability: {removed_turns} earlier "
+            "conversation turns were omitted from this request. Only the remaining "
+            "messages are available. Mention this limitation when asked for a full recap."
+        )
+
     return [system, *context], removed_turns
 
 

@@ -1,0 +1,3 @@
+[server]
+# Use polling to avoid cross-drive path comparisons in the Windows event watcher.
+fileWatcherType = "poll"
