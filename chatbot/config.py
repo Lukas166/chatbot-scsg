@@ -9,6 +9,7 @@ PROJECT_DIR = Path(__file__).resolve().parent.parent
 MODEL_ID = "Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft-Q4_K_M-GGUF"
 OLLAMA_MODEL = f"hf.co/{MODEL_ID}:latest"
 DATASET_FILENAME = "alpaca-gpt4-indonesian-cleaned.csv"
+DEFAULT_DATASET_PATH = PROJECT_DIR / "dataset" / DATASET_FILENAME
 SUGGESTION_COUNT = 2
 MAX_RESPONSE_TOKENS = 4096
 MIN_QUESTION_LENGTH = 12
@@ -42,12 +43,12 @@ class Settings:
     top_p: float = 0.9
     repetition_penalty: float = 1.08
     system_prompt: str = SYSTEM_PROMPT
-    dataset_path: Path = PROJECT_DIR / DATASET_FILENAME
+    dataset_path: Path = DEFAULT_DATASET_PATH
 
 
 # Read environment variables and validate settings before opening the chat.
 def load_settings() -> Settings:
-    dataset_path = Path(os.getenv("DATASET_PATH", DATASET_FILENAME)).expanduser()
+    dataset_path = Path(os.getenv("DATASET_PATH", str(DEFAULT_DATASET_PATH))).expanduser()
     if not dataset_path.is_absolute():
         dataset_path = PROJECT_DIR / dataset_path
 
