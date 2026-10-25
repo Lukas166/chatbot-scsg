@@ -7,7 +7,7 @@ A simple Streamlit chatbot connected to your fine-tuned [Qwen2.5 1.5B GGUF model
 - Conversation history per browser session, with follow-up questions.
 - An English system prompt that requests Indonesian answers unless another language is requested.
 - Clear conversation, retry failed answers, and adjust response length and temperature.
-- Six suggested questions from the local CSV, with a shuffle button.
+- Two suggested question bubbles pinned above the chat input while scrolling.
 - Clear feedback for connection failures, missing models, timeouts, and long questions.
 
 ## Requirements
@@ -17,6 +17,7 @@ A simple Streamlit chatbot connected to your fine-tuned [Qwen2.5 1.5B GGUF model
 - The GGUF model already available in Ollama.
 
 The application only needs Streamlit and Requests. PyTorch, Transformers, and training packages are not required.
+Streamlit 1.66 or newer is required for the pinned chat controls.
 
 ## Installation and startup
 
@@ -52,7 +53,7 @@ ollama pull hf.co/Lukas16/qwen2-5-1-5b-indonesian-chatbot-sft-Q4_K_M-GGUF:latest
 
 Type a message or click a suggestion. The answer appears after Ollama finishes generating it. Ask follow-up questions in the same session to use previous conversation context.
 
-**Shuffle questions** keeps the conversation intact. **Clear conversation** removes its history and errors. **Retry answer** resends a failed question without duplicating messages.
+The suggestion bubbles stay above the chat input while you scroll. Set `SUGGESTION_COUNT` in `chatbot/config.py` to change their number; the current setting is `2`. Suggestions remain unchanged during the session unless their count or dataset changes, with no shuffle button. **Clear conversation** removes its history and errors. **Retry answer** resends a failed question without duplicating messages.
 
 Answers allow up to 2048 tokens by default. Increase **Maximum response tokens** in the sidebar to allow up to 4096 tokens. Longer answers may take more time. Ask the chatbot to continue if an answer still reaches the limit.
 

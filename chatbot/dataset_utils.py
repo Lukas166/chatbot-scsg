@@ -6,7 +6,6 @@ from pathlib import Path
 from chatbot.config import (
     MAX_QUESTION_LENGTH,
     MIN_QUESTION_LENGTH,
-    SUGGESTION_COUNT,
 )
 
 
@@ -42,25 +41,15 @@ def read_questions(path: Path) -> list[str]:
     return questions
 
 
-# Choose suggestions and prefer prompts absent from the previous selection.
+# Choose a unique set of suggestions when a session first loads the dataset.
 def select_questions(
     questions: list[str],
-    count: int = SUGGESTION_COUNT,
-    previous: list[str] | None = None,
+    count: int,
 ) -> list[str]:
     if count <= 0:
         return []
 
     # Remove duplicate candidates before sampling without replacement.
     unique = list(dict.fromkeys(questions))
-    previous_keys = {question.casefold() for question in previous or []}
-    fresh = [question for question in unique if question.casefold() not in previous_keys]
     size = min(count, len(unique))
-    if len(fresh) >= size:
-        return random.sample(fresh, size)
-
-    # Reuse previous suggestions only when too few fresh candidates remain.
-    remaining = [question for question in unique if question.casefold() in previous_keys]
-    result = fresh + random.sample(remaining, size - len(fresh))
-    random.shuffle(result)
-    return result
+    return random.sample(unique, size)

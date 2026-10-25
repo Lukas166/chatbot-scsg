@@ -90,33 +90,34 @@ def ensure_model(settings: Settings) -> ModelResources:
 
 # Render local suggestions without making the dataset a requirement for chatting.
 def render_suggestions(settings: Settings, busy: bool) -> None:
-    st.subheader("Suggested questions")
+    st.caption("Suggested questions")
     try:
         path = settings.dataset_path
         modified_ns = path.stat().st_mtime_ns
         questions = cached_questions(str(path), modified_ns)
-        source_key = (str(path), modified_ns)
+        source_key = (str(path), modified_ns, SUGGESTION_COUNT)
 
-        # Keep suggestions stable across unrelated Streamlit reruns.
-        if st.session_state.get("suggestion_source") != source_key:
-            st.session_state.suggestions = select_questions(questions)
+        # Refresh stale selections when the dataset or configured count changes.
+        expected_count = min(SUGGESTION_COUNT, len(questions))
+        if (
+            st.session_state.get("suggestion_source") != source_key
+            or len(st.session_state.get("suggestions", [])) != expected_count
+        ):
+            st.session_state.suggestions = select_questions(questions, count=SUGGESTION_COUNT)
             st.session_state.suggestion_source = source_key
-        if st.button("Shuffle questions", disabled=busy):
-            st.session_state.suggestions = select_questions(
-                questions,
-                previous=st.session_state.suggestions,
-            )
 
         # Send suggestion clicks through the same callback as typed questions.
         suggestions = st.session_state.suggestions
         if len(suggestions) < SUGGESTION_COUNT:
             st.caption(f"The CSV provides only {len(suggestions)} valid suggestions.")
-        columns = st.columns(2)
+        if not suggestions:
+            return
+        columns = st.columns(min(2, len(suggestions)))
         for index, question in enumerate(suggestions):
-            columns[index % 2].button(
+            columns[index % len(columns)].button(
                 question,
                 key=f"suggestion_{index}",
-                use_container_width=True,
+                width="stretch",
                 disabled=busy,
                 on_click=queue_question,
                 args=(question,),
@@ -197,20 +198,22 @@ def main() -> None:
     busy = st.session_state.pending_question is not None
     settings = render_sidebar(settings, busy)
     resources = ensure_model(settings)
-    render_suggestions(settings, busy)
-    st.divider()
 
     # Replay completed messages before accepting or processing the next question.
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-    question = st.chat_input("Type your message...", disabled=busy)
+    render_feedback()
+
+    # Keep the configured suggestions and chat input visible while the page scrolls.
+    with st.bottom:
+        render_suggestions(settings, busy)
+        question = st.chat_input("Type your message...", disabled=busy)
     if question and question.strip():
         queue_question(question)
         st.rerun()
 
     process_question(resources, settings)
-    render_feedback()
 
 
 if __name__ == "__main__":
